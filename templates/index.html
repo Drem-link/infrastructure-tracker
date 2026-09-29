@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Трекер План/Недели</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #121212; color: #e0e0e0; margin: 40px; display: flex; justify-content: center; }
+        .container { max-width: 500px; width: 100%; }
+        .card { background: #1e1e1e; padding: 24px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2a2a2a; }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; box-sizing: border-box; }
+        input { background: #2a2a2a; color: #fff; }
+        button { background: #007acc; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-dash { display: block; text-align: center; background: #28a745; color: white; padding: 12px; text-decoration: none; border-radius: 6px; font-weight: bold; }
+        a { color: #4da6ff; text-decoration: none; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 8px 0; border-bottom: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>🔥 Недельный Трекер — Неделя #{{ week }}</h2>
+            {% if current_user %}
+                <p>Вы вошли как: <b>{{ current_user.username }}</b></p>
+                <a href="/dashboard" class="btn-dash">Перейти в мой дашборд →</a>
+                <br>
+                <a href="/auth/logout" style="color: #ff5555; text-decoration: none; display: block; text-align: center;">Выйти</a>
+            {% else %}
+                <h3>Вход / Регистрация</h3>
+                <form action="/auth/login" method="post">
+                    <label>Логин / Имя:</label>
+                    <input type="text" name="username" placeholder="Имя участника" required>
+                    
+                    <label>Telegram ID (для уведомлений):</label>
+                    <input type="text" name="telegram_id" placeholder="Например: 123456789">
+                    <small style="color: #888;">Узнать ID можно в боте @userinfobot</small>
+                    
+                    <button type="submit">Войти в Трекер</button>
+                </form>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h3>Участники проекта</h3>
+            <ul>
+                {% for user in users %}
+                    <li><a href="/dashboard">{{ user.username }}</a> {% if user.telegram_id %}🔔{% endif %}</li>
+                {% else %}
+                    <li>Участников пока нет</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

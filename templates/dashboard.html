@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Дашборд — {{ user.username }}</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #121212; color: #e0e0e0; margin: 30px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .weeks-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 8px; }
+        .week-btn { background: #2a2a2a; color: #ccc; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 14px; }
+        .week-btn.active { background: #007acc; color: white; font-weight: bold; }
+        table { border-collapse: collapse; width: 100%; background: #1e1e1e; border-radius: 8px; overflow: hidden; }
+        th, td { border: 1px solid #2a2a2a; padding: 12px; text-align: center; }
+        th { background: #252525; }
+        .btn-check { background: none; border: none; font-size: 20px; cursor: pointer; }
+        input, button { padding: 10px; border-radius: 6px; border: 1px solid #333; }
+        input { background: #2a2a2a; color: #fff; width: 350px; }
+        button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+        a { color: #4da6ff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <a href="/">← На главную</a>
+            <h1>Участник: {{ user.username }}</h1>
+        </div>
+        <div>
+            <a href="/auth/logout" style="color: #ff5555;">Выйти</a>
+        </div>
+    </header>
+
+    <h3>Переключение по неделям подготовки (Сентябрь — Декабрь):</h3>
+    <div class="weeks-nav">
+        {% for w in range(38, 53) %}
+            <a href="/dashboard?week={{ w }}" class="week-btn {% if w == week %}active{% endif %}">
+                Неделя #{{ w - 37 }} (№{{ w }})
+            </a>
+        {% endfor %}
+    </div>
+
+    <div style="background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3>Добавить кастомную задачу на Неделю #{{ week - 37 }}</h3>
+        <form action="/habits/add" method="post" style="display: flex; gap: 10px;">
+            <input type="hidden" name="week" value="{{ week }}">
+            <input type="text" name="title" placeholder="Доп. задача..." required>
+            <button type="submit">Добавить</button>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align: left; width: 45%;">План подготовки (Неделя #{{ week - 37 }})</th>
+                {% for day in week_days %}
+                    <th>{{ day[5:] }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for habit in habits %}
+                <tr>
+                    <td style="text-align: left;"><strong>{{ habit.title }}</strong></td>
+                    {% for day in week_days %}
+                        <td>
+                            <form action="/habits/toggle" method="post" style="margin: 0;">
+                                <input type="hidden" name="habit_id" value="{{ habit.id }}">
+                                <input type="hidden" name="date_str" value="{{ day }}">
+                                <input type="hidden" name="week" value="{{ week }}">
+                                <button type="submit" class="btn-check">
+                                    {% if logs_map[habit.id].get(day) %}
+                                        ✅
+                                    {% else %}
+                                        ⬜
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" style="padding: 30px; color: #888;">Задач на эту неделю нет.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
